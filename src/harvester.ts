@@ -1,5 +1,6 @@
-import { sortBy } from 'ramda';
+const sortBy = require('ramda/src/sortBy');
 
+import { runUpgraderTick } from './upgrader';
 import { euclidDist, getCreepsForRole } from './utils';
 
 export function runHarvesters() {
@@ -8,7 +9,7 @@ export function runHarvesters() {
   for (const harvester of harvesterCreeps) {
     if (harvester.store.getFreeCapacity() > 0) {
       let sources = harvester.room.find(FIND_SOURCES);
-      sources = sortBy((roomObj: any) => euclidDist(harvester, roomObj), sources);
+      sources = sortBy((roomObj: RoomObject) => euclidDist(harvester, roomObj), sources);
       if (sources.length > 0 && harvester.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
         harvester.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
       }
@@ -20,6 +21,8 @@ export function runHarvesters() {
         if (harvester.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           harvester.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
         }
+      } else {
+        runUpgraderTick(harvester);
       }
     }
   }
